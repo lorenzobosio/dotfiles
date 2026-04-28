@@ -112,7 +112,9 @@ alias ls="eza --icons --git"
 alias ll="eza --icons --git -l"
 alias la="eza --icons --git -la"
 alias lt="eza --icons --git --tree --level=2"
-alias dotsave="cd ~/dotfiles && brew bundle dump --force && git add . && git commit -m 'update' && git push"
+dotsave() {
+  cd ~/dotfiles && brew bundle dump --force && git add . && git commit -m "${1:-update}" && git push
+}
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
