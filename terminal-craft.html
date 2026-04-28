@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Field Manual of Terminal Craft — A Lesson</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=JetBrains+Mono:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F2EBD9;
+    --paper-aged: #E8DEC4;
+    --ink: #1A1410;
+    --ink-soft: #463A2F;
+    --rule: #1A1410;
+    --accent: #C8483B;
+    --accent-deep: #9C3429;
+    --tan: #8B6F47;
+    --code-bg: #1A1410;
+    --code-fg: #F2EBD9;
+    --code-comment: #8B6F47;
+    --code-string: #C8483B;
+    --code-keyword: #D4A574;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.65;
+    font-weight: 400;
+    background-image:
+      radial-gradient(ellipse at top left, rgba(139, 111, 71, 0.08), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(200, 72, 59, 0.05), transparent 50%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* Subtle paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 80px 40px 120px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── COVER ─────────────────────────────────────── */
+  .cover {
+    border-top: 4px double var(--ink);
+    border-bottom: 4px double var(--ink);
+    padding: 60px 0 40px;
+    margin-bottom: 80px;
+    text-align: center;
+    position: relative;
+  }
+
+  .cover-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 30px;
+  }
+
+  .cover-eyebrow::before, .cover-eyebrow::after {
+    content: "✦";
+    margin: 0 12px;
+    color: var(--accent);
+  }
+
+  h1.cover-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(48px, 8vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+
+  h1.cover-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+  }
+
+  .cover-subtitle {
+    font-family: 'Newsreader', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 500px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+  }
+
+  .cover-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  .cover-meta span::before { content: "—"; margin-right: 10px; color: var(--accent); }
+
+  /* ── OPENING NOTE ─────────────────────────────── */
+  .opening {
+    font-family: 'Newsreader', serif;
+    font-size: 19px;
+    line-height: 1.75;
+    margin-bottom: 80px;
+    color: var(--ink);
+    padding: 0 20px;
+  }
+
+  .opening::first-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 68px;
+    font-weight: 400;
+    float: left;
+    line-height: 0.85;
+    margin: 6px 12px -4px 0;
+    color: var(--accent);
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+  }
+
+  .opening p + p { margin-top: 1.2em; }
+
+  /* ── TABLE OF CONTENTS ─────────────────────── */
+  .toc {
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 30px 0;
+    margin-bottom: 100px;
+  }
+
+  .toc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  .toc ol {
+    list-style: none;
+    counter-reset: chapter;
+  }
+
+  .toc li {
+    counter-increment: chapter;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 6px 0;
+    font-family: 'Newsreader', serif;
+    font-size: 17px;
+  }
+
+  .toc li::before {
+    content: counter(chapter, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    min-width: 24px;
+    font-weight: 600;
+  }
+
+  .toc li a {
+    color: var(--ink);
+    text-decoration: none;
+    flex: 1;
+    border-bottom: 1px dotted var(--tan);
+    padding-bottom: 4px;
+    transition: color 0.2s;
+  }
+
+  .toc li a:hover { color: var(--accent); }
+
+  .toc li .page-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* ── CHAPTERS ─────────────────────────────────── */
+  .chapter {
+    margin-bottom: 110px;
+    scroll-margin-top: 40px;
+  }
+
+  .chapter-header {
+    margin-bottom: 50px;
+    text-align: center;
+    position: relative;
+  }
+
+  .chapter-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display: inline-block;
+    padding: 0 20px;
+    background: var(--paper);
+    position: relative;
+    z-index: 1;
+  }
+
+  .chapter-number-line {
+    position: relative;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .chapter-number-line::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--ink);
+    z-index: 0;
+  }
+
+  h2.chapter-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(36px, 5vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    font-variation-settings: "opsz" 100, "SOFT" 50;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  h2.chapter-title em {
+    font-style: italic;
+    color: var(--accent);
+    font-variation-settings: "opsz" 100, "SOFT" 100;
+  }
+
+  .chapter-deck {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 20px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .chapter-body p {
+    margin-bottom: 1.3em;
+    text-align: justify;
+    hyphens: auto;
+  }
+
+  .chapter-body > p:first-of-type::first-letter {
+    font-family: 'Fraunces', serif;
+    font-size: 54px;
+    font-weight: 400;
+    float: left;
+    line-height: 0.85;
+    margin: 6px 10px -4px 0;
+    color: var(--ink);
+    font-variation-settings: "opsz" 144, "SOFT" 80;
+  }
+
+  /* ── ANALOGY CALLOUT ─────────────────────────── */
+  .analogy {
+    margin: 40px -10px;
+    padding: 30px 36px;
+    background: var(--paper-aged);
+    border-left: 3px solid var(--accent);
+    position: relative;
+  }
+
+  .analogy::before {
+    content: "Think of it this way";
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    background: var(--paper);
+    padding: 0 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    font-weight: 600;
+  }
+
+  .analogy p {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--ink);
+    text-align: left !important;
+  }
+
+  .analogy p::first-letter { all: unset !important; }
+
+  /* ── CODE BLOCKS ─────────────────────────────── */
+  pre.code {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    padding: 22px 26px;
+    margin: 30px 0;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    border-radius: 2px;
+    box-shadow:
+      0 1px 0 var(--accent-deep),
+      0 8px 20px rgba(26, 20, 16, 0.15);
+    position: relative;
+  }
+
+  pre.code::before {
+    content: attr(data-label);
+    position: absolute;
+    top: 8px;
+    right: 14px;
+    font-size: 9.5px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--code-comment);
+  }
+
+  pre.code .prompt { color: var(--accent); user-select: none; }
+  pre.code .comment { color: var(--code-comment); font-style: italic; }
+  pre.code .keyword { color: var(--code-keyword); }
+  pre.code .string { color: #E8B45A; }
+
+  code.inline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: var(--paper-aged);
+    padding: 2px 7px;
+    border-radius: 2px;
+    color: var(--accent-deep);
+    border: 1px solid rgba(26, 20, 16, 0.1);
+  }
+
+  /* ── PULL QUOTE ───────────────────────────────── */
+  .pull-quote {
+    margin: 50px 0;
+    padding: 0 20px;
+    text-align: center;
+    position: relative;
+  }
+
+  .pull-quote::before, .pull-quote::after {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin: 0 auto 24px;
+  }
+
+  .pull-quote::after { margin: 24px auto 0; }
+
+  .pull-quote q {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 28px;
+    line-height: 1.3;
+    color: var(--ink);
+    quotes: none;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+  }
+
+  .pull-quote q::before { content: "“"; color: var(--accent); margin-right: 4px; }
+  .pull-quote q::after { content: "”"; color: var(--accent); margin-left: 4px; }
+
+  /* ── DEFINITION LIST ─────────────────────────── */
+  .definitions {
+    margin: 30px 0;
+    padding: 24px 28px;
+    background: var(--paper-aged);
+    border: 1px dashed var(--ink-soft);
+  }
+
+  .definitions h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .definitions dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 18px; }
+  .definitions dt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-deep);
+    font-weight: 600;
+  }
+  .definitions dd {
+    font-family: 'Newsreader', serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* ── ORNAMENTAL SECTION DIVIDER ─────────────── */
+  .ornament {
+    text-align: center;
+    margin: 60px 0;
+    color: var(--accent);
+    font-size: 18px;
+    letter-spacing: 1em;
+  }
+
+  .ornament::before { content: "⁘ ⁂ ⁘"; }
+
+  /* ── EPILOGUE ─────────────────────────────────── */
+  .epilogue {
+    margin-top: 100px;
+    padding: 50px 30px;
+    border: 2px solid var(--ink);
+    background: linear-gradient(180deg, var(--paper-aged) 0%, var(--paper) 100%);
+    text-align: center;
+    position: relative;
+  }
+
+  .epilogue::before {
+    content: "FIN";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--paper);
+    padding: 0 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .epilogue h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 32px;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+  }
+
+  .epilogue p {
+    font-family: 'Newsreader', serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink);
+    margin-bottom: 14px;
+    text-align: left;
+  }
+
+  .epilogue .signature {
+    margin-top: 30px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  /* ── COLOPHON ──────────────────────────────────── */
+  .colophon {
+    margin-top: 80px;
+    padding-top: 30px;
+    border-top: 1px solid var(--ink);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    line-height: 2;
+  }
+
+  .colophon span { color: var(--accent); }
+
+  /* ── RESPONSIVE ────────────────────────────────── */
+  @media (max-width: 640px) {
+    .page { padding: 50px 24px 80px; }
+    body { font-size: 16px; }
+    .chapter-body p { text-align: left; hyphens: none; }
+    .analogy { margin: 30px -4px; padding: 24px 24px; }
+    .definitions dl { grid-template-columns: 1fr; gap: 4px 0; }
+    .definitions dt { margin-top: 12px; }
+    .definitions dt:first-child { margin-top: 0; }
+    pre.code { font-size: 12px; padding: 18px 18px; }
+    .cover-meta { flex-direction: column; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ────────────── COVER ────────────── -->
+  <header class="cover">
+    <div class="cover-eyebrow">A Field Manual, In One Sitting</div>
+    <h1 class="cover-title">Terminal <em>Craft</em></h1>
+    <p class="cover-subtitle">Everything you set up tonight, explained from first principles — for the version of you that wants to understand, not just copy.</p>
+    <div class="cover-meta">
+      <span>For Lorenzo</span>
+      <span>Berlin, April 2026</span>
+      <span>Eight Chapters</span>
+    </div>
+  </header>
+
+  <!-- ────────────── OPENING ────────────── -->
+  <section class="opening">
+    <p>You spent an evening following commands on faith. They worked, but the <em>why</em> stayed murky. That's normal — most developers learn this stuff the same way: copy, paste, hope, repeat. Years pass before someone tells them what any of it actually does.</p>
+    <p>This is that conversation, compressed. Eight short chapters, in the order we touched the pieces. Each one explains one tool, one concept, or one habit, with an analogy that should make it stick. Read it once tonight while it's all fresh, and again in a month when something breaks and you want to fix it yourself.</p>
+  </section>
+
+  <!-- ────────────── TOC ────────────── -->
+  <nav class="toc">
+    <div class="toc-label">Contents</div>
+    <ol>
+      <li><a href="#ch1">The Three Things People Confuse: Terminal, Shell, Prompt</a><span class="page-num">i</span></li>
+      <li><a href="#ch2">Oh My Zsh — A Framework, Not a Shell</a><span class="page-num">ii</span></li>
+      <li><a href="#ch3">Plugins: Autosuggestions &amp; Syntax Highlighting</a><span class="page-num">iii</span></li>
+      <li><a href="#ch4">The Prompt: Why Starship, Not Powerlevel10k</a><span class="page-num">iv</span></li>
+      <li><a href="#ch5">Nerd Fonts &amp; The Glyph Problem</a><span class="page-num">v</span></li>
+      <li><a href="#ch6">The Modern CLI Trio: zoxide, eza, fzf</a><span class="page-num">vi</span></li>
+      <li><a href="#ch7">Aliases, Functions, &amp; Symlinks</a><span class="page-num">vii</span></li>
+      <li><a href="#ch8">Dotfiles — Version Control for Your Setup</a><span class="page-num">viii</span></li>
+    </ol>
+  </nav>
+
+  <!-- ────────────── CHAPTER 1 ────────────── -->
+  <article class="chapter" id="ch1">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter One</span></div>
+      <h2 class="chapter-title">Terminal, Shell, <em>Prompt</em></h2>
+      <p class="chapter-deck">Three different things, almost everyone gets them wrong.</p>
+    </header>
+    <div class="chapter-body">
+      <p>Before any of tonight's tools make sense, you need to separate three things people lump together as "the terminal." They're stacked, like a phone call.</p>
+
+      <p>The <strong>terminal</strong> is the application — the window. iTerm2, Apple's Terminal.app, VS Code's integrated terminal. Its only job is to show characters and capture your keystrokes. It does no thinking.</p>
+
+      <p>The <strong>shell</strong> is the program running inside that window. It interprets what you type, runs commands, manages variables. On modern Macs that's <code class="inline">zsh</code>. The shell is the brain.</p>
+
+      <p>The <strong>prompt</strong> is the little bit of text the shell prints before each command — the part that says where you are, what branch you're on, that cloud icon for AWS. It's pure cosmetics, generated by the shell. <code class="inline">Powerlevel10k</code> and <code class="inline">Starship</code> are prompts. They aren't shells.</p>
+
+      <div class="analogy">
+        <p>The <strong>terminal</strong> is the bar — the room where you're standing. The <strong>shell</strong> is the bartender taking your order. The <strong>prompt</strong> is the way they say <em>"what'll it be?"</em> — the phrasing, the eye contact. You can change the bar, the bartender, or the greeting, independently. Tonight you changed all three.</p>
+      </div>
+
+      <p>Once you internalize this, every tutorial online suddenly reads more clearly. "Add this to your shell" means <code class="inline">~/.zshrc</code>. "Customize your prompt" means Starship config. "Try a new terminal" means installing iTerm2. Different layers, different files.</p>
+    </div>
+  </article>
+
+  <!-- ────────────── CHAPTER 2 ────────────── -->
+  <article class="chapter" id="ch2">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter Two</span></div>
+      <h2 class="chapter-title">Oh My <em>Zsh</em></h2>
+      <p class="chapter-deck">A framework that organizes your shell's wardrobe.</p>
+    </header>
+    <div class="chapter-body">
+      <p>Oh My Zsh is the most-installed thing in this whole stack and the most misunderstood. People say "I installed Oh My Zsh" as if they installed a new shell. They didn't. Zsh was already there. Oh My Zsh just bolted a tidy management system on top of it.</p>
+
+      <p>Zsh on its own is powerful but unopinionated — it has no built-in way to load themes, manage plugins, or share configs between machines. Oh My Zsh adds three conventions: a folder structure (<code class="inline">~/.oh-my-zsh/</code>), a plugins system (the <code class="inline">plugins=(...)</code> array in <code class="inline">.zshrc</code>), and a themes system (<code class="inline">ZSH_THEME=</code>).</p>
+
+      <div class="analogy">
+        <p>Zsh is a kitchen. Oh My Zsh is the line of labeled containers, the pegboard for tools, and the whiteboard schedule. The kitchen still cooks the food — but now you can find the salt and a new chef can read the prep list. None of it changes the recipes themselves.</p>
+      </div>
+
+      <p>This is why removing Oh My Zsh doesn't break your shell — your shell was always zsh. And it's why installing OMZ is fundamentally just cloning a folder and sourcing a script from <code class="inline">.zshrc</code>. Everything else — the git aliases, the colored prompts, the plugin loading — is just convention layered on top.</p>
+    </div>
+  </article>
+
+  <!-- ────────────── CHAPTER 3 ────────────── -->
+  <article class="chapter" id="ch3">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter Three</span></div>
+      <h2 class="chapter-title">The Two <em>Plugins</em></h2>
+      <p class="chapter-deck">Autosuggestions and syntax-highlighting, demystified.</p>
+    </header>
+    <div class="chapter-body">
+      <p>You added two plugins early in the evening. They feel like magic but each does exactly one thing.</p>
+
+      <p><strong>zsh-autosuggestions</strong> watches your command history. As you type, it shows the rest of the most recent matching command in grey. Press <code class="inline">→</code> to accept it. That's the whole feature. It doesn't predict the future or use AI; it just remembers what you've already typed and shows you the closest match.</p>
+
+      <p><strong>zsh-syntax-highlighting</strong> looks at each character as you type and asks: <em>is this a real command?</em> Real commands turn green. Typos turn red. Strings get their own color. It's a live linter for your command line — the same idea as syntax highlighting in VS Code, just running in your shell.</p>
+
+      <div class="analogy">
+        <p>Autosuggestions is the experienced bartender finishing your sentence: <em>"the usual? Negroni, slightly less Campari?"</em> Syntax-highlighting is the spell-check underline that appears as you write — green when the word exists, red when you've fat-fingered it. Both are quietly working, neither demands attention.</p>
+      </div>
+
+      <p>You loaded them by adding their names to the <code class="inline">plugins=(...)</code> array in <code class="inline">.zshrc</code>. That array is read once when zsh starts, and Oh My Zsh sources each plugin's script. Order matters for one of them — syntax-highlighting must be last in the list, because it patches into zsh's keystroke handler and any plugin loaded after it could break the patching.</p>
+    </div>
+  </article>
+
+  <!-- ────────────── CHAPTER 4 ────────────── -->
+  <article class="chapter" id="ch4">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter Four</span></div>
+      <h2 class="chapter-title">The Prompt: <em>Starship</em></h2>
+      <p class="chapter-deck">Why we walked away from Powerlevel10k.</p>
+    </header>
+    <div class="chapter-body">
+      <p>Powerlevel10k was the king of zsh prompts for years — fast, info-dense, beautiful. Then in 2024 its author quietly stepped back, marking the project "on life support." It still works. It just won't get fixes or new features.</p>
+
+      <p>Starship is the modern alternative the community has converged on. It's written in Rust (read: blazing fast), it works with <em>any</em> shell — zsh, bash, fish, PowerShell, Nushell — and it's actively maintained by a real team, not one heroic individual. Crucially, the configuration is one file (<code class="inline">~/.config/starship.toml</code>) that you can copy between machines without touching anything else.</p>
+
+      <p>The way Starship plugs in is also cleaner. A single line at the end of <code class="inline">.zshrc</code>:</p>
+
+      <pre class="code" data-label="zshrc"><span class="comment"># ── activate Starship as the prompt ──</span>
+eval <span class="string">"$(starship init zsh)"</span></pre>
+
+      <p>That <code class="inline">eval</code> takes the output of <code class="inline">starship init zsh</code> (which is a chunk of zsh code) and runs it. The result is that every time zsh asks "what should the prompt look like right now?", Starship answers based on your current directory, git branch, language version, AWS context, and so on. It's smart enough to only show segments that are <em>relevant</em> — which is why your AWS region disappears when no AWS env vars are set, and your git branch only shows in repos.</p>
+
+      <div class="analogy">
+        <p>Powerlevel10k was a finely tailored suit by a master who's retired. It still fits, but no one's altering it anymore. Starship is the same suit cut by an active atelier with a workshop full of apprentices. Both look sharp; only one will be there to fix the seam in two years.</p>
+      </div>
+    </div>
+  </article>
+
+  <div class="ornament"></div>
+
+  <!-- ────────────── CHAPTER 5 ────────────── -->
+  <article class="chapter" id="ch5">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter Five</span></div>
+      <h2 class="chapter-title">Nerd Fonts &amp; The <em>Glyph Problem</em></h2>
+      <p class="chapter-deck">Why your terminal needed a special font to show icons.</p>
+    </header>
+    <div class="chapter-body">
+      <p>A font is a collection of <em>glyphs</em> — drawings that the computer renders when it encounters specific character codes. Regular fonts include letters, numbers, punctuation, and a smattering of symbols. They don't include git branch icons, cloud symbols, or folder pictograms, because no standard alphabet does.</p>
+
+      <p>When Starship tries to print a git branch icon and your font has no glyph for that character code, you see a tiny empty box. It's not a bug — the font is honestly telling you "I don't know what this is."</p>
+
+      <p><strong>Nerd Fonts</strong> are normal coding fonts (Meslo, Fira Code, JetBrains Mono, Hack, etc.) that have been "patched" to include thousands of additional symbols: file-type icons, branch icons, language logos, weather symbols. The "NF" you see in font names — <code class="inline">MesloLGS NF</code> — stands for "Nerd Font."</p>
+
+      <div class="analogy">
+        <p>Imagine writing a letter that includes a Chinese character. If the recipient's printer only has English type, that character won't print at all — it'll appear as an empty rectangle. Not because the printer is broken, but because the type tray is missing the right slug. A Nerd Font is a type tray with thousands of extra slugs added.</p>
+      </div>
+
+      <p>This is why the same prompt looks gorgeous in iTerm with MesloLGS NF and like a row of empty boxes in a default Terminal.app session — the prompt is generating the same character codes either way; only the font knows how to draw them.</p>
+    </div>
+  </article>
+
+  <!-- ────────────── CHAPTER 6 ────────────── -->
+  <article class="chapter" id="ch6">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter Six</span></div>
+      <h2 class="chapter-title">The Modern <em>CLI Trio</em></h2>
+      <p class="chapter-deck">zoxide, eza, fzf — the new replacements for tools you didn't know were old.</p>
+    </header>
+    <div class="chapter-body">
+      <p>The classic Unix commands — <code class="inline">cd</code>, <code class="inline">ls</code>, <code class="inline">grep</code>, <code class="inline">find</code> — were designed in the 1970s for terminals that displayed monochrome text on glass screens. They still work fine, but a generation of developers has built friendlier versions in Rust and Go. The three you installed are the most beloved.</p>
+
+      <div class="definitions">
+        <h4>The Trio</h4>
+        <dl>
+          <dt>zoxide</dt><dd>A smarter <code class="inline">cd</code>. It remembers every folder you've ever visited and lets you jump back to any of them with a fragment of the name (<code class="inline">z week2</code>). The interactive picker (<code class="inline">zi</code>) shows them all in a fuzzy menu.</dd>
+          <dt>eza</dt><dd>A modern <code class="inline">ls</code>. Same job, but with file-type icons (using your Nerd Font), color coding, git status per file, and a built-in tree view.</dd>
+          <dt>fzf</dt><dd>A general-purpose fuzzy finder. It pipes any list — files, folders, history, processes — through an interactive search interface. The shell integration gives you <code class="inline">Ctrl+R</code> for fuzzy history, <code class="inline">Ctrl+T</code> for fuzzy file picking, <code class="inline">Option+C</code> for fuzzy directory hopping.</dd>
+        </dl>
+      </div>
+
+      <div class="analogy">
+        <p>The classic commands are paper Rolodexes — they work, you flip through them, you find the card. The trio is a search bar with autocomplete. Same data, an entirely different speed of thought. After a week with <code class="inline">Option+C</code> and <code class="inline">zi</code>, typing <code class="inline">cd ../../some/long/path</code> feels archaic.</p>
+      </div>
+
+      <p>The deeper lesson here is the Unix philosophy in action: each of these tools does <em>one thing</em>. <code class="inline">fzf</code> doesn't know about your filesystem; it just sorts and filters lines. The shell integration scripts are what pipe folder names <em>into</em> fzf and pipe the selection <em>out</em> as a <code class="inline">cd</code> argument. Small composable parts, glued together by your shell.</p>
+    </div>
+  </article>
+
+  <div class="pull-quote">
+    <q>The shell isn't a tool you use. It's a tiny programming language you live inside.</q>
+  </div>
+
+  <!-- ────────────── CHAPTER 7 ────────────── -->
+  <article class="chapter" id="ch7">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter Seven</span></div>
+      <h2 class="chapter-title">Aliases, Functions, <em>Symlinks</em></h2>
+      <p class="chapter-deck">Three forms of indirection — the shell's most powerful idea.</p>
+    </header>
+    <div class="chapter-body">
+      <p>An <strong>alias</strong> is a nickname. <code class="inline">alias ll="eza --icons --git -l"</code> tells the shell: when I type <code class="inline">ll</code>, pretend I typed the longer thing. Aliases can't take logic, conditions, or arguments — they're text substitution, nothing more.</p>
+
+      <p>A <strong>function</strong> is an alias with a brain. It can accept arguments, run multiple commands, branch on conditions. Your <code class="inline">dotsave</code> is a function because we wanted it to take an optional commit message:</p>
+
+      <pre class="code" data-label="zshrc"><span class="keyword">dotsave</span>() {
+  cd ~/dotfiles &amp;&amp; brew bundle dump --force &amp;&amp; git add . &amp;&amp; \
+  git commit -m <span class="string">"${1:-update}"</span> &amp;&amp; git push
+}</pre>
+
+      <p>That <code class="inline">${1:-update}</code> is shell shorthand for <em>"use the first argument; if there isn't one, use the literal word 'update' instead."</em> A pattern you'll see in scripts forever.</p>
+
+      <p>A <strong>symlink</strong> is a different kind of indirection — at the filesystem level instead of the command level. It's a file that says nothing except "the real thing is over there." When you ran:</p>
+
+      <pre class="code" data-label="terminal"><span class="prompt">❯</span> ln -s ~/dotfiles/.zshrc ~/.zshrc</pre>
+
+      <p>...you created a tiny pointer file at <code class="inline">~/.zshrc</code> whose only contents are the path <code class="inline">~/dotfiles/.zshrc</code>. When zsh opens its config, the operating system silently follows the pointer and reads the real file in the dotfiles repo. Zsh has no idea anything's unusual. It just works.</p>
+
+      <div class="analogy">
+        <p>Aliases are nicknames at a regulars' bar — say <em>"the usual"</em> and the bartender pours your drink. Functions are nicknames with options — <em>"the usual, but with mezcal tonight."</em> Symlinks are something else entirely: imagine moving the wine cellar to a warehouse across town and putting a sign in the cellar that says <em>"see warehouse."</em> The bartender keeps reaching for the shelf, the sign quietly redirects them, the wine still arrives.</p>
+      </div>
+
+      <p>Indirection is one of programming's deepest ideas. It lets you separate <em>what something is called</em> from <em>where it actually lives</em> — which is what made tonight's dotfiles repo possible.</p>
+    </div>
+  </article>
+
+  <!-- ────────────── CHAPTER 8 ────────────── -->
+  <article class="chapter" id="ch8">
+    <header class="chapter-header">
+      <div class="chapter-number-line"><span class="chapter-number">Chapter Eight</span></div>
+      <h2 class="chapter-title"><em>Dotfiles</em> &amp; The Brewfile</h2>
+      <p class="chapter-deck">Treating your environment as code.</p>
+    </header>
+    <div class="chapter-body">
+      <p>Files in your home directory whose names start with a dot (<code class="inline">.zshrc</code>, <code class="inline">.gitconfig</code>, <code class="inline">.config/</code>) are conventionally hidden from regular file listings. Developers call them <em>dotfiles</em>. They're the configuration files that, taken together, define your personal computing environment.</p>
+
+      <p>A <strong>dotfiles repo</strong> is the practice of putting those files in a git repository, usually pushed to GitHub. Three benefits stack up:</p>
+
+      <p>First, <strong>history</strong>. Every change is timestamped and reversible. When you change something today and your shell breaks tomorrow, <code class="inline">git diff</code> shows exactly what shifted. No more "I have no idea what I last touched."</p>
+
+      <p>Second, <strong>portability</strong>. New laptop? Clone the repo, symlink the files into place, and your environment lives again. The Brewfile (generated by <code class="inline">brew bundle dump</code>) extends this to your installed software — one command (<code class="inline">brew bundle install</code>) reinstalls every package, cask, and VS Code extension you had.</p>
+
+      <p>Third, and quietly the most important: <strong>understanding</strong>. Once your config is a tracked artifact in git, you start treating it as code — something to refactor, document, and improve. You stop hoarding settings and start curating them.</p>
+
+      <div class="analogy">
+        <p>Most people's environments are a kitchen built up over years — every drawer holds something, no one remembers when it arrived. A dotfiles repo is the same kitchen, but with a written floorplan, a printed inventory, and a ledger of changes. Burn it down, and you can rebuild it identically by Friday.</p>
+      </div>
+
+      <p>You also added <code class="inline">dotsave</code> — a one-word workflow for saving and pushing changes. That detail matters more than it looks. Tools you have to <em>remember</em> to use, you eventually stop using. Tools that fit into a single word, you keep using forever.</p>
+    </div>
+  </article>
+
+  <!-- ────────────── EPILOGUE ────────────── -->
+  <section class="epilogue">
+    <h3>The Mental Model You Built Tonight</h3>
+    <p>You now have, layered from the bottom up: a <strong>terminal</strong> (iTerm2) that draws characters; a <strong>shell</strong> (zsh) that runs commands; a <strong>framework</strong> (Oh My Zsh) that organizes the shell's plugins and configuration; <strong>plugins</strong> (autosuggestions, syntax-highlighting) that make typing faster and safer; a <strong>prompt</strong> (Starship) that draws the smart contextual line at every command; a <strong>font</strong> (MesloLGS NF) that knows how to draw the icons that prompt produces; <strong>modern CLI tools</strong> (zoxide, eza, fzf) that replace the slow legacy commands; <strong>aliases and functions</strong> that condense your habits into single words; and a <strong>dotfiles repo</strong> that backs the whole arrangement up to GitHub, version-controlled, restorable.</p>
+
+    <p>None of it was random. Every piece you installed answers a specific need that the previous piece exposed. Once you can see the layers, you'll be able to debug any of them — and pick replacements with intention rather than tutorials.</p>
+
+    <p class="signature">Now — the recipe is yours. Go cook. ✦</p>
+  </section>
+
+  <!-- ────────────── COLOPHON ────────────── -->
+  <div class="colophon">
+    Set in <span>Fraunces</span>, <span>Newsreader</span>, &amp; <span>JetBrains Mono</span><br>
+    Written for Lorenzo Bosio · Berlin · Late April, 2026
+  </div>
+
+</div>
+
+</body>
+</html>
